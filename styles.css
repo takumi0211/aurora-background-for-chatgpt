@@ -1,0 +1,254 @@
+/* =========================================================
+   ChatGPT Ambient Blur — FULL styles.css
+   - Ambient background with bottom gradient
+   - 10% white haze over image
+   - Glass composer only when NOT in legacy
+   - Legacy composer = stock gray, untouched
+   - Upload chips/previews stay visible
+   - Bottom bar/fade removed in BOTH modes
+   ========================================================= */
+
+/* only make the page transparent when our bg is active */
+html.cgpt-ambient-on,
+html.cgpt-ambient-on body {
+  background: transparent !important;
+}
+
+/* fixed, behind everything, non-interactive */
+#cgpt-ambient-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* stretch inner elements */
+#cgpt-ambient-bg picture,
+#cgpt-ambient-bg img,
+#cgpt-ambient-bg .haze,
+#cgpt-ambient-bg .overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* blur + brighter, pastel-leaning image (light look as default) */
+#cgpt-ambient-bg img {
+  object-fit: cover;
+  transform: scale(1.08);
+  filter: blur(60px) brightness(0.98) saturate(1.18);
+  opacity: 0.30;
+  will-change: transform, filter;
+}
+
+/* ===== 10% white haze (subtle frost) ===== */
+#cgpt-ambient-bg .haze {
+  background: rgba(255, 255, 255, 0.02);
+  pointer-events: none;
+}
+
+/* bottom gradient (white → transparent) — light look by default */
+html.cgpt-ambient-on #cgpt-ambient-bg .overlay {
+  pointer-events: none !important;
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.08) 0%,
+      rgba(0, 0, 0, 0.00) 20%
+    ),
+    linear-gradient(
+      to top,
+      rgba(255, 255, 255, 0.92) 0%,
+      rgba(255, 255, 255, 0.82) 8%,
+      rgba(255, 255, 255, 0.60) 18%,
+      rgba(255, 255, 255, 0.32) 34%,
+      rgba(255, 255, 255, 0.14) 54%,
+      rgba(255, 255, 255, 0.00) 76%
+    ) !important;
+}
+
+/* =========================================================
+   Composer styling
+   ========================================================= */
+
+/* Glass look — ONLY when NOT in legacy mode */
+html.cgpt-ambient-on.cgpt-glass
+  form[data-type="unified-composer"]
+  > div:is(.bg-token-bg-primary, [class*="dark:bg"]) {
+  background: rgba(255,255,255,0.10) !important;
+  border: 1px solid rgba(255,255,255,0.28) !important;
+  box-shadow: 0 6px 26px rgba(0,0,0,.20) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(140%) !important;
+  backdrop-filter: blur(14px) saturate(140%) !important;
+}
+@media (prefers-color-scheme: dark) {
+  html.cgpt-ambient-on.cgpt-glass
+    form[data-type="unified-composer"]
+    > div:is(.bg-token-bg-primary, [class*="dark:bg"]) {
+    background: rgba(0,0,0,0.35) !important;
+    border: 1px solid rgba(255,255,255,0.14) !important;
+    box-shadow: 0 8px 30px rgba(0,0,0,.40) !important;
+  }
+}
+
+/* keep the editor area transparent only in glass mode */
+html.cgpt-ambient-on.cgpt-glass
+  form[data-type="unified-composer"] .ProseMirror,
+html.cgpt-ambient-on.cgpt-glass
+  form[data-type="unified-composer"] textarea {
+  background: transparent !important;
+}
+
+/* Legacy mode: DO NOT override the composer;
+   let the site’s stock gray render naturally */
+
+/* =========================================================
+   Safer page neutralization
+   ========================================================= */
+
+/* only neutralize the big page wrappers */
+html.cgpt-ambient-on :is(main, #__next) {
+  background-color: transparent !important;
+}
+
+/* expand neutralization to sidebars/nav so the ambient covers full viewport */
+html.cgpt-ambient-on :is(nav, aside, [class*="sidebar"], [id*="sidebar"]) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+  background-image: none !important;
+}
+
+/* token-based surfaces often used by the left sidebar */
+html.cgpt-ambient-on :is(
+  .bg-token-sidebar-surface,
+  .bg-token-sidebar-surface-primary,
+  .bg-token-sidebar-surface-secondary,
+  .bg-token-surface-primary,
+  .bg-token-surface-secondary
+) {
+  background: transparent !important;
+}
+
+/* include bg-token-bg* surfaces that power sticky header strips */
+html.cgpt-ambient-on :is(nav, aside) [class*="bg-token-bg-"],
+html.cgpt-ambient-on :is(nav, aside) [class*="bg-token-bg"],
+html.cgpt-ambient-on :is(nav, aside) [class*="bg-token-elevated-"] {
+  background: transparent !important;
+}
+
+/* scrub fades/gradients/lines added via pseudos in the sidebar */
+html.cgpt-ambient-on :is(nav, aside, [class*="sidebar"], [id*="sidebar"])::before,
+html.cgpt-ambient-on :is(nav, aside, [class*="sidebar"], [id*="sidebar"])::after,
+html.cgpt-ambient-on :is(nav, aside, [class*="sidebar"], [id*="sidebar"]) :is(.content-fade, [class*="gradient"])::before,
+html.cgpt-ambient-on :is(nav, aside, [class*="sidebar"], [id*="sidebar"]) :is(.content-fade, [class*="gradient"])::after {
+  content: none !important;
+  background: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+/* sticky top/bottom bars inside sidebar */
+html.cgpt-ambient-on aside :is([class*="sticky"], [class*="top-"], [class*="bottom-"]) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+/* sticky top/bottom bars inside nav (sidebar header lives here in some builds) */
+html.cgpt-ambient-on nav :is([class*="sticky"], [class*="top-"], [class*="bottom-"]) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+/* remove borders/rings/shadows used as separators in nav */
+html.cgpt-ambient-on nav :is([class*="border"], [class*="ring"], [class*="shadow"]) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* kill tailwind-esque scrollport shadow utility on sticky header */
+html.cgpt-ambient-on nav [class*="scrollport:shadow"] {
+  box-shadow: none !important;
+  background: transparent !important;
+  background-image: none !important;
+}
+
+/* header strip (top-left area) */
+html.cgpt-ambient-on header {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+
+/* scrub header inner paints (some builds add a left-side white strip via pseudos) */
+html.cgpt-ambient-on header *,
+html.cgpt-ambient-on header {
+  background-image: none !important;
+}
+html.cgpt-ambient-on header::before,
+html.cgpt-ambient-on header::after,
+html.cgpt-ambient-on header *::before,
+html.cgpt-ambient-on header *::after {
+  content: none !important;
+  background: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+/* ===== remove the bottom page bar/fade in BOTH modes ===== */
+html.cgpt-ambient-on #thread-bottom-container {
+  background: transparent !important;   /* kills the gray bar surface */
+  box-shadow: none !important;
+}
+
+/* FINAL fallback: scrub any remaining paints inside the sidebar */
+html.cgpt-ambient-on aside, 
+html.cgpt-ambient-on aside * {
+  background-color: transparent !important;
+  background-image: none !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+}
+
+/* remove borders/rings/shadows used as separators in sidebar */
+html.cgpt-ambient-on aside :is([class*="border"], [class*="ring"], [class*="shadow"]) {
+  border-color: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+/* remove any pseudo-based fades or overlays inside sidebar */
+html.cgpt-ambient-on aside *::before,
+html.cgpt-ambient-on aside *::after {
+  content: none !important;
+  background: none !important;
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+/* remove any gradient mask it applies */
+html.cgpt-ambient-on #thread-bottom-container.content-fade,
+html.cgpt-ambient-on #thread-bottom-container .content-fade {
+  -webkit-mask-image: none !important;
+  mask-image: none !important;
+}
+
+/* some builds paint the fade via pseudos — strip those */
+html.cgpt-ambient-on #thread-bottom-container::before,
+html.cgpt-ambient-on #thread-bottom-container::after,
+html.cgpt-ambient-on #thread-bottom-container .content-fade::before,
+html.cgpt-ambient-on #thread-bottom-container .content-fade::after {
+  content: none !important;
+  background: none !important;
+}
+
+/* footer line (“ChatGPT can make mistakes…”) — ensure no bar */
+html.cgpt-ambient-on #thread-bottom-container .text-token-text-secondary {
+  background: transparent !important;
+}
+
+/* (Light overrides block removed — default is already light/pastel and subtle) */
